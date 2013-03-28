@@ -1,0 +1,284 @@
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="css/new.css" />
+        <script src="js/three.js"></script>
+        <script src="js/OBJLoader.js"></script>
+        <script>
+            var escena;
+            var camara;
+            var modelo;
+            var render;
+            var key = {up: 38, down: 40, right: 39, left: 37, acercar: 65, alejar: 83};
+            var ultimoTiempo = Date.now();
+            var theta = 0.0;
+            var phi = 0.0;
+            var radio = 10;
+            var objeto_actual;
+            var projector;
+            var mouse = {x: 200, y: 200}, INTERSECTED;
+            var canvasAlto = 450;
+            var canvasAncho = 600;
+            var element;
+
+            function gradosArad(grados) {
+                return grados * Math.PI / 180;
+            }
+
+            function iniciarEscena() {
+
+                render = new THREE.WebGLRenderer();
+                render.setClearColorHex(0x000000, 1);
+
+
+
+                render.setSize(canvasAncho, canvasAlto);
+                element = render.domElement;
+
+                element.id = "renderer";
+                document.getElementById("canvas").appendChild(element);
+                document.getElementById()
+                escena = new THREE.Scene();
+
+                camara = new THREE.PerspectiveCamera(45, canvasAncho / canvasAlto, 0.1, 200);
+                // camara.position.set(0, 0, radio);
+
+
+
+
+                var colorEsfera = 0x35A6FC;
+                var geometriaEsfera = new THREE.SphereGeometry(1, 15, 15);
+                var esferaMaterial = new THREE.MeshPhongMaterial({color: colorEsfera, specular: 0xFFFFFF});
+                //  var esferaMaterial= new THREE.MeshBasicMaterial({color:colorEsfera});
+                var esfera = new THREE.Mesh(geometriaEsfera, esferaMaterial);
+                esfera.position.set(0, 0, 0);
+                escena.add(esfera);
+
+                objeto_actual = esfera;
+                actualizar_camara();
+
+                escena.add(camara);
+                var luzPuntual = new THREE.PointLight(0xFFFFFF, 0.7, 0.0);
+                luzPuntual.position.set(0, 0, 10);
+                var luzAmbiental = new THREE.AmbientLight(0x101010);
+                escena.add(luzAmbiental);
+
+                escena.add(luzPuntual);
+                projector = new THREE.Projector();
+                var loader = new THREE.OBJLoader();
+
+
+
+                loader.addEventListener('load', cargar_modelo);
+                //   document.getElementById("picker").setAttribute("value","#35A6FC");
+                loader.load('obj/small_fighter_1.obj');
+
+
+
+            }
+
+            function cargar_modelo(event) {
+
+                modelo = event.content;
+                modelo.position.set(0.0, 2.0, 0.0);
+                escena.add(modelo);
+                modelo.scale.set(0.1, 0.1, 0.1);
+            }
+
+            function renderEscena() {
+                render.render(escena, camara);
+            }
+
+            function webGlStart() {
+
+                iniciarEscena();
+                renderEscena();
+                animarEscena();
+            }
+
+            function keyHandler(event) {
+
+
+                switch (event.keyCode) {
+                    case key.up:
+
+                        phi++;
+                        //camara.rotation.y+=gradosArad(0.1);
+                        //document.getElementById("salida").innerHTML="arriba y:"+camara.rotation.y;
+                        break;
+                    case key.down:
+
+                        phi--;
+                        //camara.rotation.y-=gradosArad(0.1);
+                        break;
+                    case key.left:
+                        theta--;
+                        //camara.rotation.x-=gradosArad(0.1);
+                        break;
+                    case key.right:
+                        theta++;
+                        // camara.rotation.x+=gradosArad(0.1);
+                        break;
+                    case key.acercar:
+                        radio -= 0.5;
+                        break;
+                    case key.alejar:
+                        radio += 0.5;
+                        break;
+                }
+
+                phi = Math.min(180, Math.max(phi, -180));
+
+
+            }
+
+            function animarEscena() {
+                var delta = (Date.now() - ultimoTiempo) / 1000;
+                if (delta > 0)
+                {
+                    actualizar_camara();
+                    camara.lookAt(objeto_actual.position);
+                    update();
+                    renderEscena();
+                }
+                ultimoTiempo = Date.now();
+                requestAnimationFrame(animarEscena);
+            }
+
+            function actualizar_camara() {
+                camara.position.x = radio * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+                camara.position.y = radio * Math.sin(phi * Math.PI / 360);
+                camara.position.z = radio * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+                //camara.updateMatrix();
+
+
+            }
+
+            function changeColor(color) {
+                objeto_actual.material.color.set(color);
+
+            }
+
+            function onMouseMove(event)
+            {
+
+                mouse.x = (event.clientX / canvasAncho) * 2 - 1;
+                mouse.y = -(event.clientY / canvasAlto) * 2 + 1;
+
+            }
+
+
+            function update()
+            {
+
+                //crear un rayo que sale de la posicion del mouse en direccion a la escena
+                var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+                projector.unprojectVector(vector, camara);
+                var ray = new THREE.Raycaster(camara.position, vector.sub(camara.position).normalize());
+
+                //arreglo de objetos intersectados
+                var intersects = ray.intersectObjects(escena.children);
+
+                // INTERSECTED = contiene el objeto intersectado mas cercano
+                // a la camara.
+
+                // si hay mas de una interseccion
+                if (intersects.length > 0)
+                {
+
+                    if (intersects[ 0 ].object !== INTERSECTED) {
+
+                        if (INTERSECTED)
+                            INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+
+                        INTERSECTED = intersects[ 0 ].object;
+
+                        INTERSECTED.currentHex = INTERSECTED.material.color.getHex();
+
+                        INTERSECTED.material.color.setHex(~INTERSECTED.currentHex);
+                    }
+                }
+                else
+                {
+
+                    if (INTERSECTED)
+                        INTERSECTED.material.color.setHex(INTERSECTED.currentHex);
+
+                    INTERSECTED = null;
+                }
+
+
+
+            }
+
+
+        </script>
+    </head>
+
+    <body class="esp" onload="webGlStart();" onkeydown="keyHandler(event);">
+
+
+        <header class="titulo">
+            <div class="navbar navbar-inverse navbar-fixed-top">
+                <div class="navbar-inner">
+                    <div class="container">
+                        <div class="nav-collapse collapse">
+                            <ul class="nav">
+                                <li class="">
+                                    <a href="http://www.usb.ve/">USB</a>
+                                </li>
+                                <li class="">
+                                    <a href="http://esaulgd.wordpress.com/">CI-5321</a>
+                                </li>
+                                <li class="">
+                                    <a href="http://mrdoob.github.com/three.js/">three.js</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <div class="btn-group">
+                            <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#">
+                                Integrantes
+                                <span class="caret"></span>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+                                <li><a tabindex="-1" href="#">César Freitas</a></li>
+                                <li><a tabindex="-1" href="#">Gian Franco Conti</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <h1 >Smoother</h1>
+        </header>
+        <div id="canvas" class="container central_canvas" onmousemove="onMouseMove(event);">
+            <b>titulo</b>
+        </div>
+
+        <aside>
+
+            <h3>menu</h3>
+            <div id="color_sel">
+
+                <b id="salida">Color del objeto:</b><br/>
+                <input id="picker" type="color" onchange="changeColor(this.value);" value="#35A6FC" />
+            </div>
+        </aside>
+
+
+        <footer>
+
+        </footer>
+
+
+
+    </body>
+</html>
