@@ -82,5 +82,6 @@ body.esp{
     background-image: url('../img/dark_background.jpg');
     background-repeat: no-repeat;
     background-size: 100%;
+    width: 100%
 
 }

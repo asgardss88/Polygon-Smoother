@@ -11,7 +11,9 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="css/new.css" />
         <script src="js/three.js"></script>
         <script src="js/OBJLoader.js"></script>
+        <script src="js/Estructuras2.js"></script>
         <script>
+            var test = {id: 0};
             var escena;
             var camara;
             var modelo;
@@ -21,12 +23,121 @@ and open the template in the editor.
             var theta = 0.0;
             var phi = 0.0;
             var radio = 10;
-            var objeto_actual;
             var projector;
             var mouse = {x: 200, y: 200}, INTERSECTED;
             var canvasAlto = 450;
             var canvasAncho = 600;
             var element;
+            var VERTICES = '0';
+            var CARA4 = '1';
+            var CARA3 = '2';
+            var NORMAL = '3';
+            var vertices = /\s*v\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s*/;
+            var face3 = /\s*f\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s*/;
+            var face4 = /\s*f\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s+(-?\d+)(\/(-?\d+)?(\/-?\d+))?\s*/;
+            var normal = /\s*vn\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s*/;
+            var SUB_LEVELS = 5;
+            var mesh_array = new Array();
+            var geometria_inicial = new Array(SUB_LEVELS);
+            var material = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF});
+            material.wireframe=true;
+    var modelo_actual;
+            var luzPuntual;
+            var luzAmbiental;
+            function leerArchivo() {
+
+                var files = document.getElementById('files').files;
+                if (!files.length) {
+                    alert('Por favor selecciona un archivo!');
+                    return;
+                }
+
+                var file = files[0];
+                var start = 0;
+                var stop = file.size - 1;
+
+                var reader = new FileReader();
+
+                // If we use onloadend, we need to check the readyState.
+                reader.onloadend = function(evt) {
+                    if (evt.target.readyState === FileReader.DONE) { // DONE == 2
+                        //  document.getElementById('byte_content').textContent = evt.target.result;
+                        parseObjStr(evt.target.result);
+                        
+                        for (i in mesh_array){
+                            escena.remove(mesh_array[i]);
+                        }
+                        var generator= new MeshGenerator();
+                        var n0=geometria_inicial;
+                        var nm= generator.generate(geometria_inicial);
+                        var generator2= new MeshGenerator();
+                        console.log("===================================================================================");
+                        var nm2= generator2.generate(nm);
+                        mesh_array.push(new THREE.Mesh(n0, material));
+                         mesh_array.push(new THREE.Mesh(nm, material));
+                         mesh_array.push(new THREE.Mesh(nm2, material));
+                         modelo_actual= mesh_array[0];
+                         modelo_actual.position.set(0,0,0);
+                        // modelo_actual.scale.set(0.1, 0.1, 0.1);
+                        modelo_actual.geometry.computeFaceNormals();
+                        escena.add(modelo_actual);
+
+                        var n = 1;
+
+                       // while (n < 2) {
+                         //   generator = new MeshGenerator();
+                           // GEOMETRY_ARRAY[n] = generator.generate(GEOMETRY_ARRAY[n - 1]);
+                            //n++;
+                        //}
+
+
+                    }
+                };
+
+                var blob = file.slice(start, stop + 1);
+                reader.readAsText(blob);
+            }
+
+            function parseObjStr(str) {
+                var res = str.split("\n");
+                var expresion = [vertices, face4, face3];
+                var found;
+                geometria_inicial = new THREE.Geometry();
+                for (i in res) {
+                    for (j in expresion) {
+
+                        found = expresion[j].exec(res[i]);
+
+                        if (found !== null) {
+
+                            switch (j) {
+                                case VERTICES:
+                                    geometria_inicial.vertices.push(new THREE.Vector3(+found[1], +found[2], +found[3]));
+                                    //    console.log("encontrado vertice " + found[1] + " " + found[2] + " " + found[3]);
+                                    break;
+                                case CARA4:
+                                    geometria_inicial.faces.push(new THREE.Face3(+found[1] - 1, +found[5] - 1, +found[9] - 1));
+                                    geometria_inicial.faces.push(new THREE.Face3(+found[9] - 1, +found[13] - 1, +found[1] - 1));
+                                    //     console.log("encontrada cara4 " + found[1] + " " + found[5] + " " + found[9] + " " + found[13]);
+                                    break;
+                                case CARA3:
+                                    geometria_inicial.faces.push(new THREE.Face3(+found[1] - 1, +found[5] - 1, +found[9] - 1));
+                                    // console.log("encontrada cara3 " + found[1] + " " + found[5] + " " + found[9]);
+                                    break;
+
+                            }
+
+                            break;
+
+                        }
+
+
+                    }
+
+
+                }
+
+            }
 
             function gradosArad(grados) {
                 return grados * Math.PI / 180;
@@ -44,7 +155,7 @@ and open the template in the editor.
 
                 element.id = "renderer";
                 document.getElementById("canvas").appendChild(element);
-                document.getElementById()
+                document.getElementById();
                 escena = new THREE.Scene();
 
                 camara = new THREE.PerspectiveCamera(45, canvasAncho / canvasAlto, 0.1, 200);
@@ -54,45 +165,45 @@ and open the template in the editor.
 
 
                 var colorEsfera = 0x35A6FC;
-                var geometriaEsfera = new THREE.SphereGeometry(1, 15, 15);
-                var esferaMaterial = new THREE.MeshPhongMaterial({color: colorEsfera, specular: 0xFFFFFF});
-                //  var esferaMaterial= new THREE.MeshBasicMaterial({color:colorEsfera});
-                var esfera = new THREE.Mesh(geometriaEsfera, esferaMaterial);
+                geometria_inicial = new THREE.SphereGeometry(1, 2, 2);
+              var esferaMaterial = new THREE.MeshPhongMaterial({color: colorEsfera, specular: 0xFFFFFF});
+                //var esferaMaterial= new THREE.MeshBasicMaterial({color:colorEsfera});
+               var esfera = new THREE.Mesh(geometria_inicial, esferaMaterial);
                 esfera.position.set(0, 0, 0);
-                escena.add(esfera);
+                //escena.add(esfera);
 
-                objeto_actual = esfera;
+                modelo_actual = esfera;
                 actualizar_camara();
 
                 escena.add(camara);
-                var luzPuntual = new THREE.PointLight(0xFFFFFF, 0.7, 0.0);
+                luzPuntual = new THREE.PointLight(0xFFFFFF, 0.7, 0.0);
                 luzPuntual.position.set(0, 0, 10);
-                var luzAmbiental = new THREE.AmbientLight(0x101010);
+                luzAmbiental = new THREE.AmbientLight(0x101010);
                 escena.add(luzAmbiental);
 
                 escena.add(luzPuntual);
                 projector = new THREE.Projector();
-                var loader = new THREE.OBJLoader();
+
+                var n = 1;
+                //var generator = new MeshGenerator();
+                // while(n<SUB_LEVELS){
+
+                //   GEOMETRY_ARRAY[n]= generator.generate(GEOMETRY_ARRAY[n-1]);
+                //  n++;
+                //}
 
 
 
-                loader.addEventListener('load', cargar_modelo);
-                //   document.getElementById("picker").setAttribute("value","#35A6FC");
-                loader.load('obj/small_fighter_1.obj');
+
 
 
 
             }
 
-            function cargar_modelo(event) {
 
-                modelo = event.content;
-                modelo.position.set(0.0, 2.0, 0.0);
-                escena.add(modelo);
-                modelo.scale.set(0.1, 0.1, 0.1);
-            }
 
             function renderEscena() {
+                render.setClearColorHex(0x000000, 1);
                 render.render(escena, camara);
             }
 
@@ -144,8 +255,8 @@ and open the template in the editor.
                 if (delta > 0)
                 {
                     actualizar_camara();
-                    camara.lookAt(objeto_actual.position);
-                    update();
+                    camara.lookAt(modelo_actual.position);
+                    //update();
                     renderEscena();
                 }
                 ultimoTiempo = Date.now();
@@ -162,7 +273,7 @@ and open the template in the editor.
             }
 
             function changeColor(color) {
-                objeto_actual.material.color.set(color);
+                modelo_actual.material.color.set(color);
 
             }
 
@@ -171,6 +282,8 @@ and open the template in the editor.
 
                 mouse.x = (event.clientX / canvasAncho) * 2 - 1;
                 mouse.y = -(event.clientY / canvasAlto) * 2 + 1;
+
+                // console.log("x:"+mouse.x+" y:"+mouse.y);
 
             }
 
@@ -218,6 +331,37 @@ and open the template in the editor.
 
             }
 
+            function scaleup() {
+
+                modelo_actual.scale.x += 0.1;
+                modelo_actual.scale.y += 0.1;
+                modelo_actual.scale.z += 0.1;
+            }
+
+            function scaledown() {
+
+                modelo_actual.scale.x -= 0.1;
+                modelo_actual.scale.y -= 0.1;
+                modelo_actual.scale.z -= 0.1;
+            }
+
+            function updateSlider(slider) {
+              //  alert(slider.value);
+                escena.remove(modelo_actual);
+                modelo_actual=mesh_array[slider.value];
+                        // modelo_actual.position.set(0,0,0);
+                        // modelo_actual.scale.set(0.1, 0.1, 0.1);
+                modelo_actual.geometry.computeFaceNormals();
+                escena.add(modelo_actual);
+                var v = modelo_actual.geometry.vertices;
+                
+                
+                //GEOMETRY_ARRAY[slider.value];
+                //alert(GEOMETRY_ARRAY[slider.value]);
+                document.getElementById('slabel').innerHTML=slider.value;
+                renderEscena();
+            }
+
 
         </script>
     </head>
@@ -259,7 +403,7 @@ and open the template in the editor.
             </div>
             <h1 >Smoother</h1>
         </header>
-        <div id="canvas" class="container central_canvas" onmousemove="onMouseMove(event);">
+        <div id="canvas" class="container central_canvas" onmousemove="">
             <b>titulo</b>
         </div>
 
@@ -270,6 +414,21 @@ and open the template in the editor.
 
                 <b id="salida">Color del objeto:</b><br/>
                 <input id="picker" type="color" onchange="changeColor(this.value);" value="#35A6FC" />
+            </div>
+
+
+            <div>
+                <input type="file" id="files" name="Abrir" /> 
+                <button onclick="leerArchivo();" >read</button>
+            </div>
+            <div>
+                <button onclick="scaleup();">+</button>
+                <button onclick="scaledown();">-</button>
+            </div>
+            <div>
+                <input id="slider" value="0" onchange="updateSlider(this);" type="range" min="0" max="2" />
+                <label id="slabel" for="slider">0</label>
+
             </div>
         </aside>
 
