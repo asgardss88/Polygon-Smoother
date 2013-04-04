@@ -26,12 +26,12 @@ root {
 }
 
 aside{
-    margin-top: -500px;
+    
     display: block;
     text-align: center;
     margin-right: 40px;
     vertical-align: top;
-    float: right;
+    
     height: 500px;
     width: 250px;
     background-color: #1b1b1b;
@@ -42,6 +42,15 @@ aside{
     
 }   
 
+.derecha{
+    margin-top: -500px;
+    float: right;
+}
+
+.izquierda{
+    margin-top: 15px;
+     float: left;
+}
 
 
 
@@ -85,3 +94,30 @@ body.esp{
     width: 100%
 
 }
+
+.oculto{
+    display:none;
+}
+
+.menu_elem{
+    padding-top: 10px;
+}
+
+.color_p{
+    display: inline;
+}
+
+#info{
+    
+    padding-top: 10px;
+    padding-left: 40px;
+    text-align: left;
+}
+
+a.info_m{
+    color: #0480be;
+    text-decoration: none;
+    margin-top: 25px;
+}
+
+

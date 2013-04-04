@@ -15,6 +15,8 @@ function MeshGenerator() {
     this.geometry = new THREE.Geometry();
     this.index = 0;
     this.newIndex = 0;
+    this.oldedge_num=0;
+    
    // alert("vertices: " + this.geometry.vertices.length + " caras:" + this.geometry.faces.length);
 
 
@@ -64,6 +66,7 @@ function MeshGenerator() {
         }
 
         indexer.connectTwins(this.half_edges);
+        this.oldedge_num = this.half_edges.length/2;
     };
 
     this.generate = function(geom) {
@@ -150,6 +153,7 @@ function MeshGenerator() {
 
       //  alert("vertices: " + this.geometry.vertices.length + " caras:" + this.geometry.faces.length);
        // alert("instancia: " + this.newIndex);
+       
         return this.geometry;
 
     };
