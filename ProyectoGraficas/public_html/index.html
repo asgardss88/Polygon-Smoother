@@ -80,7 +80,7 @@ and open the template in the editor.
                     alert('Por favor selecciona un archivo!');
                     return;
                 }
-
+                document.getElementById('loading').style.visibility = 'visible';
                 var file = files[0];
                 var start = 0;
                 var stop = file.size - 1;
@@ -118,7 +118,7 @@ and open the template in the editor.
                         if (alternativo) {
                             document.getElementById('c_schema').click();
                         }
-
+                        document.getElementById('loading').style.visibility = 'hidden';
 
                     }
                 };
@@ -177,7 +177,7 @@ and open the template in the editor.
             }
 
             function iniciarEscena() {
-
+                document.getElementById('loading').style.visibility = 'hidden';
                 render = new THREE.WebGLRenderer();
                 render.setClearColorHex(0xFFFFFF, 1);
 
@@ -515,6 +515,7 @@ and open the template in the editor.
 
             function changeModel(selector) {
 
+                document.getElementById('loading').style.visibility = 'visible';
                 var idx = selector.selectedIndex;
                 var name;
                 switch (selector.options[idx].value) {
@@ -530,7 +531,7 @@ and open the template in the editor.
                         break;
 
                 }
-
+                
                 escena.remove(modelo_actual);
                 var string_figura = document.getElementById(name).innerHTML;
                 document.getElementById("c_title").innerHTML = name;
@@ -543,7 +544,7 @@ and open the template in the editor.
                 if (alternativo) {
                     document.getElementById('c_schema').click();
                 }
-
+                document.getElementById('loading').style.visibility = 'hidden';
 
             }
 
@@ -616,6 +617,7 @@ and open the template in the editor.
                 </select>
             </div>
         </aside>
+        <img id="loading" src="img/loading.gif"/>
         <div id="canvas" class="container central_canvas" onmousemove="">
             <b id="c_title">Icosaedro</b>
         </div>

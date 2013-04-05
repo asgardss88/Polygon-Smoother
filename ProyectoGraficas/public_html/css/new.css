@@ -120,4 +120,12 @@ a.info_m{
     margin-top: 25px;
 }
 
-
+#loading{
+    z-index: 2;
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    margin-top: 220px;
+    margin-left: 550px;
+    
+}
