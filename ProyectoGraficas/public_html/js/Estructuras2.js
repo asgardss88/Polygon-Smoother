@@ -188,7 +188,7 @@ function TwinIndexer() {
                 // var aux = new Half_Edge(temp[0].next.next.vertex,null);
                 temp[0].setTwin(new Half_Edge(temp[0].next.next.vertex, null));
                 //  lst.push(aux);
-                alert("solo " + i + " con length " + temp[0].next.next.vertex);
+                alert("ERROR Arista definida por los vertices " + i +" solo tiene una cara adyacente" );
             }
         }
 
@@ -216,14 +216,6 @@ function Vertex(x, y, z) {
 
 
 
-    this.clone = function() {
-        var cpy_vector = new THREE.Vector3(0, 0, 0);
-        cpy_vector.copy(this.vec);
-        var copy = new Vertex(cpy_vector);
-        copy.setHalfedge(this.halfedge);
-        return copy;
-
-    };
 
     this.calcularPares = function() {
         var n = 0;
@@ -282,9 +274,6 @@ function Half_Edge(vertex, face) {
         this.next = next_edge;
     };
 
-    this.getFaceVertex = function() {
-        return [this.vertex, this.next.medium, this.next.vertex, this.next.next.medium, this.next.next.vertex, this.medium];
-    };
 
     this.calcularImpar = function( ) {
         var sides, top;
