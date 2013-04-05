@@ -36,14 +36,16 @@ and open the template in the editor.
             var normal = /\s*vn\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s+(-?\d+\.?\d*)\s*/;
             var SUB_LEVELS = 5;
             var mesh_array = new Array();
-            var geometria_inicial = new Array(SUB_LEVELS);
-            var material = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF});
-            var material_altr = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF, vertexColors: THREE.FaceColors});
-            var material_wire = new THREE.MeshLambertMaterial({color: 0xFFFFFF, specular: 0xFFFFFF, wireframe:true});
+            var geometria_inicial;
+            var material = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF, vertexColors: THREE.FaceColors});
+            //var material_altr = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF, vertexColors: THREE.FaceColors});
+            //var material_wire = new THREE.MeshLambertMaterial({color: 0xFFFFFF, specular: 0xFFFFFF, wireframe:true});
             var modelo_actual;
             var luzPuntual;
             var luzAmbiental;
-            var actual=0;
+            var actual = 0;
+            var actual_color = 0x35A6FC;
+            var alternativo = false;
 
             function generateMeshs() {
                 mesh_array = new Array();
@@ -113,7 +115,9 @@ and open the template in the editor.
                         modelo_actual.geometry.computeFaceNormals();
                         escena.add(modelo_actual);
                         changeMeshInfo(modelo_actual.geometry.vertices.length, modelo_actual.geometry.faces.length, modelo_actual.n_aristas);
-
+                        if (alternativo) {
+                            document.getElementById('c_schema').click();
+                        }
 
 
                     }
@@ -308,6 +312,7 @@ and open the template in the editor.
 
             function changeColor(color) {
                 material.color.set(color);
+                actual_color = color;
 
             }
 
@@ -393,19 +398,19 @@ and open the template in the editor.
             }
 
             function updateSlider(slider) {
-                
+
                 if (modelo_actual !== undefined && modelo_actual !== null) {
                     escena.remove(modelo_actual);
                     actual = slider.value;
                     modelo_actual = mesh_array[slider.value];
-                    
+
                     escena.add(modelo_actual);
 
                     changeMeshInfo(modelo_actual.geometry.vertices.length, modelo_actual.geometry.faces.length, modelo_actual.n_aristas);
 
 
 
-                    
+
                     document.getElementById('slabel').innerHTML = slider.value;
                     renderEscena();
                 }
@@ -435,43 +440,81 @@ and open the template in the editor.
                 }
             }
 
-            function changeColorSchema(boton) {
-                
-                //if(actual!==0){
+            function restoreColors() {
+                var j = 1;
+                while (j < SUB_LEVELS) {
+                    var lst_caras = mesh_array[j].geometry.faces;
 
-                if (boton.innerHTML === 'Alternativo') {
-                    document.getElementById('picker').style.visibility = 'hidden';
-                    
-                    var lst_caras= modelo_actual.geometry.faces;
-                    
-                    for (i in lst_caras){
-                        lst_caras[i].color.setHex( Math.random() * 0xffffff );
-                        
+
+                    material.color.set(actual_color);
+                    for (i in lst_caras) {
+                        lst_caras[i].color.setHex(0xffffff);
+
                     }
-                    
-                    
-           
-                   
-                    
-                    boton.innerHTML = 'Convencional';
-                    
+
+                    mesh_array[j].geometry.colorsNeedUpdate = true;
+                    j++;
+
+                }
+
+                modelo_actual = mesh_array[actual];
+            }
+
+            function alternativeColors() {
+                var j = 1;
+                while (j < SUB_LEVELS) {
+                    var lst_caras = mesh_array[j].geometry.faces;
+                    var n = 0;
+                    var color;
+                    material.color.set(0xFFFFFF);
+                    while (n + 3 < lst_caras.length) {
+                        color = Math.random() * 0xffffff;
+                        if (n % 2 === 0) {
+                            color = ~color;
+                        }
+
+                        lst_caras[n].color.setHex(color);
+                        lst_caras[n + 1].color.setHex(color);
+                        lst_caras[n + 2].color.setHex(color);
+                        lst_caras[n + 3].color.setHex(color);
+                        n += 4;
+
+
+                    }
+
+                    mesh_array[j].geometry.colorsNeedUpdate = true;
+                    j++;
+
+                }
+
+                modelo_actual = mesh_array[actual];
+            }
+
+            function changeColorSchema(boton) {
+
+                if (actual !== 0) {
+
+
+                    if (boton.innerHTML === 'Alternativo') {
+                        document.getElementById('picker').style.visibility = 'hidden';
+                        boton.innerHTML = 'Convencional';
+                        alternativeColors();
+                        alternativo = true;
+                    } else {
+                        boton.innerHTML = 'Alternativo';
+                        document.getElementById('picker').style.visibility = 'visible';
+                        alternativo = false;
+                        restoreColors();
+                    }
+
 
                 } else {
-                    boton.innerHTML = 'Alternativo';
-                    document.getElementById('picker').style.visibility = 'visible';
-                    
-                    
-            }
-            
-            modelo_actual.geometry.colorsNeedUpdate=true;
-           
-               // }else{
-                 //   alert("nivel 0 no tiene esquema alternativo!");
-                //}
+                    alert("nivel 0 no tiene esquema alternativo!");
+                }
             }
 
             function changeModel(selector) {
-                
+
                 var idx = selector.selectedIndex;
                 var name;
                 switch (selector.options[idx].value) {
@@ -496,6 +539,10 @@ and open the template in the editor.
                 generateMeshs();
                 modelo_actual = mesh_array[actual];
                 escena.add(modelo_actual);
+
+                if (alternativo) {
+                    document.getElementById('c_schema').click();
+                }
 
 
             }
@@ -556,10 +603,10 @@ and open the template in the editor.
                 <h5>Importar desde .obj</h5>
                 <input type="file" id="files" name="Abrir" /> 
                 <button class="btn btn-primary btn-small" onclick="leerArchivo();" >cargar</button>
-                
-                
+
+
             </div>
-            
+
             <div class="menu_elem">
                 <h5>Elegir modelo</h5>
                 <select onchange="changeModel(this);">
@@ -582,7 +629,7 @@ and open the template in the editor.
                 <h5>Color</h5>
                 <div class="color_p">
                     <input id="picker" type="color"  onchange="changeColor(this.value);" value="#35A6FC" />
-                    <button class="btn btn-primary btn-small" onclick="changeColorSchema(this);" >Alternativo</button>
+                    <button id="c_schema" class="btn btn-primary btn-small" onclick="changeColorSchema(this);" >Alternativo</button>
                 </div>
 
                 <h5>Mostrar</h5>
