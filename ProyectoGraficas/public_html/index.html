@@ -38,7 +38,8 @@ and open the template in the editor.
             var mesh_array = new Array();
             var geometria_inicial = new Array(SUB_LEVELS);
             var material = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF});
-            // material.wireframe=true;
+            var material_altr = new THREE.MeshLambertMaterial({color: 0x35A6FC, specular: 0xFFFFFF, vertexColors: THREE.FaceColors});
+            var material_wire = new THREE.MeshLambertMaterial({color: 0xFFFFFF, specular: 0xFFFFFF, wireframe:true});
             var modelo_actual;
             var luzPuntual;
             var luzAmbiental;
@@ -375,7 +376,7 @@ and open the template in the editor.
 
             function scaledown() {
 
-                if (mesh_array[i].scale.x > 0) {
+                if (mesh_array[0].scale.x > 0) {
                     for (i in mesh_array) {
 
                         mesh_array[i].scale.x -= 0.1;
@@ -392,20 +393,19 @@ and open the template in the editor.
             }
 
             function updateSlider(slider) {
-                //  alert(slider.value);
+                
                 if (modelo_actual !== undefined && modelo_actual !== null) {
                     escena.remove(modelo_actual);
                     actual = slider.value;
                     modelo_actual = mesh_array[slider.value];
-                    //  modelo_actual.geometry.computeFaceNormals();
+                    
                     escena.add(modelo_actual);
 
                     changeMeshInfo(modelo_actual.geometry.vertices.length, modelo_actual.geometry.faces.length, modelo_actual.n_aristas);
 
 
 
-                    //GEOMETRY_ARRAY[slider.value];
-                    //alert(GEOMETRY_ARRAY[slider.value]);
+                    
                     document.getElementById('slabel').innerHTML = slider.value;
                     renderEscena();
                 }
@@ -436,16 +436,38 @@ and open the template in the editor.
             }
 
             function changeColorSchema(boton) {
+                
+                //if(actual!==0){
 
                 if (boton.innerHTML === 'Alternativo') {
                     document.getElementById('picker').style.visibility = 'hidden';
+                    
+                    var lst_caras= modelo_actual.geometry.faces;
+                    
+                    for (i in lst_caras){
+                        lst_caras[i].color.setHex( Math.random() * 0xffffff );
+                        
+                    }
+                    
+                    
+           
+                   
+                    
                     boton.innerHTML = 'Convencional';
+                    
 
                 } else {
                     boton.innerHTML = 'Alternativo';
                     document.getElementById('picker').style.visibility = 'visible';
-                }
-
+                    
+                    
+            }
+            
+            modelo_actual.geometry.colorsNeedUpdate=true;
+           
+               // }else{
+                 //   alert("nivel 0 no tiene esquema alternativo!");
+                //}
             }
 
             function changeModel(selector) {
