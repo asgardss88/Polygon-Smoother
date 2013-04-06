@@ -12,6 +12,7 @@ and open the template in the editor.
         <script src="js/three.js"></script>
         <script src="js/OBJLoader.js"></script>
         <script src="js/Estructuras2.js"></script>
+        
         <script>
             var escena;
             var camara;
@@ -48,6 +49,70 @@ and open the template in the editor.
             var actual_color = 0x35A6FC;
             var alternativo = false;
             var both_materials=false;
+            
+            /*
+             * Variables para el movimiento de la camara con el mouse
+             */
+            var mousePresionado = false;
+            var ultimaCoordenadaMouseX = null;
+            var ultimaCoordenadaMouseY = null;
+
+        
+            function enMousePresionado(event) {
+                try {
+                    mousePresionado = true;
+                    ultimaCoordenadaMouseX = event.clientX;
+                    ultimaCoordenadaMouseY = event.clientY;
+                }
+                catch (e) {
+                    //alert(e);
+                }
+		
+            }
+
+            function enMouseLiberado() {
+                try {
+                    mousePresionado = false;  
+                }
+                catch (e) {
+                    //alert(e);
+                }
+		
+            }
+
+            function enMouseMovimiento(event) {
+                try {
+                    if (!mousePresionado) {
+			return;
+                    }
+                    var xActual = event.clientX;
+                    var yActual = event.clientY;
+
+                    var deltaX = xActual - ultimaCoordenadaMouseX;
+                    if (deltaX > 0) theta--;
+                    if (deltaX < 0) theta++;
+
+                    var deltaY = yActual - ultimaCoordenadaMouseY;
+                    if (deltaY > 0) phi++;
+                    if (deltaY < 0) phi--;
+
+                    ultimaCoordenadaMouseX = xActual;
+                    ultimaCoordenadaMouseY = yActual;    
+                }
+                catch (e) {
+                    //alert(e);
+                }
+		
+            }
+            
+            function enMouseRueda (event) {
+                try {
+                    var deltaRueda = event.wheelDelta;
+                    if (deltaRueda > 0) radio -= 0.5;
+                    if (deltaRueda < 0) radio += 0.5;
+                }
+                catch (e) {}
+            }
 
             function generateMeshs() {
                 mesh_array = new Array();
@@ -320,6 +385,11 @@ and open the template in the editor.
                 camara.position.x = radio * Math.sin(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
                 camara.position.y = radio * Math.sin(phi * Math.PI / 360);
                 camara.position.z = radio * Math.cos(theta * Math.PI / 360) * Math.cos(phi * Math.PI / 360);
+               luzPuntual.position.x=camara.position.x;
+               luzPuntual.position.y=camara.position.y;
+               luzPuntual.position.z=camara.position.z;
+               
+               
                 //camara.updateMatrix();
 
 
@@ -332,15 +402,7 @@ and open the template in the editor.
 
             }
 
-            function onMouseMove(event)
-            {
-
-                mouse.x = (event.clientX / canvasAncho) * 2 - 1;
-                mouse.y = -(event.clientY / canvasAlto) * 2 + 1;
-
-                // console.log("x:"+mouse.x+" y:"+mouse.y);
-
-            }
+            
 
 
             function update()
@@ -682,7 +744,7 @@ and open the template in the editor.
             </div>
         </aside>
         <img id="loading" src="img/loading.gif"/>
-        <div id="canvas" class="container central_canvas" onmousemove="">
+        <div id="canvas" class="container central_canvas" onmouseup="enMouseLiberado()" onmousedown="enMousePresionado(event)" onmousemove="enMouseMovimiento(event)" onmousewheel="enMouseRueda(event)">
             <b id="c_title">Icosaedro</b>
         </div>
 
