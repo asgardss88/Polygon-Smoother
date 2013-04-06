@@ -91,12 +91,12 @@ and open the template in the editor.
                     var yActual = event.clientY;
 
                     var deltaX = xActual - ultimaCoordenadaMouseX;
-                    if (deltaX > 0) theta--;
-                    if (deltaX < 0) theta++;
+                    if (deltaX > 0) theta-=3;
+                    if (deltaX < 0) theta+=3;
 
                     var deltaY = yActual - ultimaCoordenadaMouseY;
-                    if (deltaY > 0) phi++;
-                    if (deltaY < 0) phi--;
+                    if (deltaY > 0) phi+=3;
+                    if (deltaY < 0) phi-=3;
 
                     ultimaCoordenadaMouseX = xActual;
                     ultimaCoordenadaMouseY = yActual;    
@@ -340,21 +340,21 @@ and open the template in the editor.
                 switch (event.keyCode) {
                     case key.up:
 
-                        phi++;
+                        phi+=3;
                         //camara.rotation.y+=gradosArad(0.1);
                         //document.getElementById("salida").innerHTML="arriba y:"+camara.rotation.y;
                         break;
                     case key.down:
 
-                        phi--;
+                        phi-=3;
                         //camara.rotation.y-=gradosArad(0.1);
                         break;
                     case key.left:
-                        theta--;
+                        theta-=3;
                         //camara.rotation.x-=gradosArad(0.1);
                         break;
                     case key.right:
-                        theta++;
+                        theta+=3;
                         // camara.rotation.x+=gradosArad(0.1);
                         break;
                     case key.acercar:
@@ -652,7 +652,7 @@ and open the template in the editor.
                 
                 escena.remove(modelo_actual);
                 
-                if(both_materials){ escena.remove(wire_actual)}
+                if(both_materials){ escena.remove(wire_actual);}
                 
                 var string_figura = document.getElementById(name).innerHTML;
                 document.getElementById("c_title").innerHTML = name;
@@ -750,7 +750,7 @@ and open the template in the editor.
             </div>
         </aside>
         <img id="loading" src="img/loading.gif"/>
-        <div id="canvas" class="container central_canvas" onmouseup="enMouseLiberado()" onmousedown="enMousePresionado(event)" onmousemove="enMouseMovimiento(event)" onmousewheel="enMouseRueda(event)">
+        <div id="canvas" class="container central_canvas" onmouseup="enMouseLiberado();" onmousedown="enMousePresionado(event);" onmousemove="enMouseMovimiento(event);" onmousewheel="enMouseRueda(event)">
             <b id="c_title">Icosaedro</b>
         </div>
 
