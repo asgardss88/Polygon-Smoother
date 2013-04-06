@@ -10,6 +10,8 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
         <link rel="stylesheet" type="text/css" href="css/new.css" />
         <script src="js/three.js"></script>
+        <script src="js/jquery-1.9.1.min.js"></script>
+        <script src="js/bootstrap.js"></script>
         <script src="js/OBJLoader.js"></script>
         <script src="js/Estructuras2.js"></script>
         
@@ -696,20 +698,24 @@ and open the template in the editor.
                                     <a href="http://esaulgd.wordpress.com/">CI-5321</a>
                                 </li>
                                 <li class="">
+                                    <a href="http://www.khronos.org/webgl/">Webgl</a>
+                                </li>
+                                <li class="">
                                     <a href="http://mrdoob.github.com/three.js/">three.js</a>
                                 </li>
+                                
 
                             </ul>
                         </div>
-                        <div class="btn-group">
-                            <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" onclick="">
+                        <div id="integrantes_button" class="dropdown">
+                            <a class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" >
                                 Integrantes
-                                <span class="caret"></span>
+                                <b class="caret"></b>
                             </a>
 
-                            <ul id="integrantes" class="dropdown-menu" role="menu">
-                                <li role="menuitem"><a tabindex="-1" href="#">César Freitas</a></li>
-                                <li role="menuitem"><a tabindex="-1" href="#">Gian Franco Conti</a></li>
+                            <ul id="integrantes" class="dropdown-menu" >
+                                <li ><a href="#">César Enrique Freitas 07-40915</a></li>
+                                <li ><a href="#">Gian Franco Conti 06-39385</a></li>
                             </ul>
                         </div>
                     </div>
@@ -728,7 +734,7 @@ and open the template in the editor.
             </div>
             <div class="menu_elem">
                 <h5>Importar desde .obj</h5>
-                <input type="file" id="files" name="Abrir" /> 
+                <input  type="file" id="files" name="Abrir"/> 
                 <button class="btn btn-primary btn-small" onclick="leerArchivo();" >cargar</button>
 
 

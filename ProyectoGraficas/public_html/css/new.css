@@ -48,7 +48,8 @@ aside{
 }
 
 .izquierda{
-    margin-top: 15px;
+    margin-top: 20px;
+    margin-left: 35px;
      float: left;
 }
 
@@ -74,15 +75,22 @@ aside{
     border: 1px solid #040404;
 
     border-radius:25px;
-    -moz-border-radius:25px
+    -moz-border-radius:25px;
+    box-shadow: inset 3px 3px 3px rgba(100,100,100,0.6), inset -2px -2px 3px rgba(0,0,0,0.1), 2px 2px 10px rgba(0,0,0,0.1);
 
 
 }
+
+
 
 #picker{
 
     width: 60px;
     height: 30px;
+}
+
+#integrantes_button{
+    float: right;
 }
 
 
@@ -128,4 +136,9 @@ a.info_m{
     margin-top: 220px;
     margin-left: 560px;
     
+}
+
+#files{
+    height: 40px;
+    width: 140px;
 }
